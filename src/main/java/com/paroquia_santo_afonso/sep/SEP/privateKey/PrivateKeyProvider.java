@@ -4,6 +4,7 @@ import java.io.InputStream;
 import java.security.KeyStore;
 import java.security.PrivateKey;
 
+import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
@@ -24,7 +25,8 @@ public class PrivateKeyProvider {
 	@Value("${jwt.key-password}")
 	private String keyPassword;
 	
-	private PrivateKey privateKey;
+	@Getter
+    private PrivateKey privateKey;
 	
 	@PostConstruct
 	public void init() {
@@ -38,9 +40,5 @@ public class PrivateKeyProvider {
 			throw new RuntimeException("Erro ao carregar a chave secreta", e);
 		}
 		
-	}
-	
-	public PrivateKey getPrivateKey() {
-		return privateKey;
 	}
 }

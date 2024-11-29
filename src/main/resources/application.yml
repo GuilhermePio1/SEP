@@ -1,0 +1,10 @@
+spring:
+  application:
+    name: Sistema encontros paroquiais
+  profiles:
+    active: dev
+jwt:
+  keystore: classpath:Segue-me-Encontro-de-Jovens-com-Cristo.jks
+  keystore-password: Encontro-de-Casais-com-Cristo
+  key-alias: jwt-secret
+  key-password: Encontro-de-Casais-com-Cristo
