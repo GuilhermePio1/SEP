@@ -1,0 +1,27 @@
+services:
+    sep-database:
+      image: postgres:16
+      container_name: sep-database
+      restart: always
+      environment:
+        POSTGRES_USER: postgres
+        POSTGRES_PASSWORD: admin
+        POSTGRES_DB: SEP
+      ports:
+        - "5433:5432"
+      networks:
+        - "sep-network"
+      volumes:
+        - "sep-database:/var/lib/postgresql/data"
+
+
+networks:
+  sep-network:
+    name: sep-network
+    driver: bridge
+
+
+volumes:
+  sep-database:
+    name: sep-database
+    driver: local
