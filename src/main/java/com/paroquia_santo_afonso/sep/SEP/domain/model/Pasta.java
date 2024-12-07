@@ -32,4 +32,14 @@ public class Pasta {
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "encontro_id")
 	private Encontro encontro;
+
+	public Pasta(Long id, @NotBlank(message = "A equipe é obrigatório") String equipe, byte[] arquivo,
+			Encontro encontro) {
+		this.id = id;
+		this.equipe = equipe;
+		this.arquivo = arquivo;
+		this.encontro = encontro;
+	}
+	
+	public Pasta() { }
 }
