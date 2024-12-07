@@ -1,5 +1,6 @@
 package com.paroquia_santo_afonso.sep.SEP.domain.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.persistence.CascadeType;
@@ -30,7 +31,7 @@ public class Encontro {
 	@NotBlank(message = "O nome é obrigatório")
 	private String nome;
 	
-	@OneToMany(mappedBy = "encontro", cascade = CascadeType.ALL, orphanRemoval = true)
+	@OneToMany(mappedBy = "encontro", cascade = CascadeType.REMOVE)
 	private List<Pasta> pastas;
 
 	public Encontro(Long id, @NotBlank(message = "O nome é obrigatório") String nome, List<Pasta> pastas) {
@@ -40,7 +41,9 @@ public class Encontro {
 		this.pastas = pastas;
 	}
 	
-	public Encontro() { }
+	public Encontro() {
+		this.pastas = new ArrayList<>();
+	}
 	
 	public Encontro(Long id) {
 		this.id = id;
