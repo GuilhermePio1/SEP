@@ -10,11 +10,13 @@ import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
+import lombok.Builder;
 import lombok.Data;
 
 @Entity
 @Table(name = "pastas")
 @Data
+@Builder
 public class Pasta {
 	
 	@Id

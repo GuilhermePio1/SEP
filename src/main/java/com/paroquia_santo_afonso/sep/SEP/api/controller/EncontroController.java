@@ -3,7 +3,6 @@ package com.paroquia_santo_afonso.sep.SEP.api.controller;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -16,7 +15,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.paroquia_santo_afonso.sep.SEP.api.dto.EncontroDTO;
+import com.paroquia_santo_afonso.sep.SEP.api.dto.ListarEncontroDTO;
+import com.paroquia_santo_afonso.sep.SEP.api.dto.SalvarEncontroDTO;
+import com.paroquia_santo_afonso.sep.SEP.api.dto.builder.EncontroBuilder;
 import com.paroquia_santo_afonso.sep.SEP.domain.model.Encontro;
 import com.paroquia_santo_afonso.sep.SEP.domain.service.EncontroService;
 
@@ -28,43 +29,40 @@ public class EncontroController {
 	
 	private final EncontroService encontroService;
 	
-	private final ModelMapper modelMapper;
-	
-	public EncontroController(EncontroService encontroService, ModelMapper modelMapper) {
+	public EncontroController(EncontroService encontroService) {
 		this.encontroService = encontroService;
-		this.modelMapper = modelMapper;
 	}
 
 	@GetMapping
-	public List<EncontroDTO> listar() {
+	public List<ListarEncontroDTO> listar() {
 		return encontroService.listar().stream()
-				.map(encontro -> modelMapper.map(encontro, EncontroDTO.class))
+				.map(encontro -> EncontroBuilder.toListarEncontroDTO(encontro))
 				.collect(Collectors.toList());
 	}
 	
 	@GetMapping("/{encontroId}")
-	public ResponseEntity<EncontroDTO> buscar(@PathVariable Long encontroId) {
+	public ResponseEntity<ListarEncontroDTO> buscar(@PathVariable Long encontroId) {
 		return encontroService.buscar(encontroId)
-				.map(encontro -> ResponseEntity.ok(modelMapper.map(encontro, EncontroDTO.class)))
+				.map(encontro -> ResponseEntity.ok(EncontroBuilder.toListarEncontroDTO(encontro)))
 				.orElse(ResponseEntity.notFound().build());
 	}
 	
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
-	public EncontroDTO adicionar(@Valid @RequestBody EncontroDTO encontroDTO) {
-		Encontro encontro = modelMapper.map(encontroDTO, Encontro.class);
-		return modelMapper.map(encontroService.salvar(encontro), EncontroDTO.class);
+	public ListarEncontroDTO adicionar(@Valid @RequestBody SalvarEncontroDTO salvarEncontroDTO) {
+		Encontro encontro = EncontroBuilder.toEncontro(salvarEncontroDTO);
+		return EncontroBuilder.toListarEncontroDTO(encontroService.salvar(encontro));
 	}
 	
 	@PutMapping("/{encontroId}")
-	public ResponseEntity<EncontroDTO> atualizar(@PathVariable Long encontroId, @Valid @RequestBody EncontroDTO encontroDTO) {
+	public ResponseEntity<ListarEncontroDTO> atualizar(@PathVariable Long encontroId, @Valid @RequestBody SalvarEncontroDTO salvarEncontroDTO) {
 		if (!encontroService.existsById(encontroId)) {
 			return ResponseEntity.notFound().build();
 		}
-		Encontro encontro = modelMapper.map(encontroDTO, Encontro.class);
+		Encontro encontro = EncontroBuilder.toEncontro(salvarEncontroDTO);
 		encontro.setId(encontroId);
 		
-		return ResponseEntity.ok(modelMapper.map(encontroService.salvar(encontro), EncontroDTO.class));
+		return ResponseEntity.ok(EncontroBuilder.toListarEncontroDTO(encontroService.salvar(encontro)));
 	}
 	
 	@DeleteMapping("/{encontroId}")

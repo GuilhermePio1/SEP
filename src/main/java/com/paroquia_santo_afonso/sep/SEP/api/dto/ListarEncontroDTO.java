@@ -2,17 +2,17 @@ package com.paroquia_santo_afonso.sep.SEP.api.dto;
 
 import java.util.List;
 
-import jakarta.validation.constraints.NotBlank;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-public class EncontroDTO {
+@Builder
+public class ListarEncontroDTO {
 	private Long id;
 	
-	@NotBlank(message = "O nome é obrigatório")
 	private String nome;
 	
-	private List<PastaDTO> pastas;
+	private List<ListarPastaDTO> pastas;
 }

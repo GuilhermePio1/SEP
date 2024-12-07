@@ -3,7 +3,6 @@ package com.paroquia_santo_afonso.sep.SEP.api.controller;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -16,7 +15,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.paroquia_santo_afonso.sep.SEP.api.dto.PastaDTO;
+import com.paroquia_santo_afonso.sep.SEP.api.dto.ListarPastaDTO;
+import com.paroquia_santo_afonso.sep.SEP.api.dto.SalvarPastaDTO;
+import com.paroquia_santo_afonso.sep.SEP.api.dto.builder.PastaBuilder;
 import com.paroquia_santo_afonso.sep.SEP.domain.model.Pasta;
 import com.paroquia_santo_afonso.sep.SEP.domain.service.PastaService;
 
@@ -28,43 +29,40 @@ public class PastaController {
 	
 	private final PastaService pastaService;
 	
-	private final ModelMapper modelMapper;
-	
-	public PastaController(PastaService pastaService, ModelMapper modelMapper) {
+	public PastaController(PastaService pastaService) {
 		this.pastaService = pastaService;
-		this.modelMapper = modelMapper;
 	}
 
 	@GetMapping
-	public List<PastaDTO> listar() {
+	public List<ListarPastaDTO> listar() {
 		return pastaService.listar().stream()
-				.map(pasta -> modelMapper.map(pasta, PastaDTO.class))
+				.map(pasta -> PastaBuilder.toListarPastaDTO(pasta))
 				.collect(Collectors.toList());
 	}
 	
 	@GetMapping("/{pastaId}")
-	public ResponseEntity<PastaDTO> buscar(@PathVariable Long pastaId) {
+	public ResponseEntity<ListarPastaDTO> buscar(@PathVariable Long pastaId) {
 		return pastaService.buscar(pastaId)
-				.map(pasta -> ResponseEntity.ok(modelMapper.map(pasta, PastaDTO.class)))
+				.map(pasta -> ResponseEntity.ok(PastaBuilder.toListarPastaDTO(pasta)))
 				.orElse(ResponseEntity.notFound().build());
 	}
 	
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
-	public PastaDTO adicionar(@Valid @RequestBody PastaDTO pastaDTO) {
-		Pasta pasta = modelMapper.map(pastaDTO, Pasta.class);
-		return modelMapper.map(pastaService.salvar(pasta), PastaDTO.class);
+	public ListarPastaDTO adicionar(@Valid @RequestBody SalvarPastaDTO pastaDTO) {
+		Pasta pasta = PastaBuilder.toPasta(pastaDTO);
+		return PastaBuilder.toListarPastaDTO(pastaService.salvar(pasta));
 	}
 	
 	@PutMapping("/{pastaId}")
-	public ResponseEntity<PastaDTO> atualizar(@PathVariable Long pastaId, @Valid @RequestBody PastaDTO pastaDTO) {
+	public ResponseEntity<ListarPastaDTO> atualizar(@PathVariable Long pastaId, @Valid @RequestBody SalvarPastaDTO pastaDTO) {
 		if (!pastaService.existsById(pastaId)) {
 			return ResponseEntity.notFound().build();
 		}
 		
-		Pasta pasta = modelMapper.map(pastaDTO, Pasta.class);
+		Pasta pasta = PastaBuilder.toPasta(pastaDTO);
 		pasta.setId(pastaId);
-		return ResponseEntity.ok(modelMapper.map(pastaService.salvar(pasta), PastaDTO.class));
+		return ResponseEntity.ok(PastaBuilder.toListarPastaDTO(pastaService.salvar(pasta)));
 	} 
 	
 	
