@@ -32,4 +32,17 @@ public class Encontro {
 	
 	@OneToMany(mappedBy = "encontro", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<Pasta> pastas;
+
+	public Encontro(Long id, @NotBlank(message = "O nome é obrigatório") String nome, List<Pasta> pastas) {
+		super();
+		this.id = id;
+		this.nome = nome;
+		this.pastas = pastas;
+	}
+	
+	public Encontro() { }
+	
+	public Encontro(Long id) {
+		this.id = id;
+	}
 }

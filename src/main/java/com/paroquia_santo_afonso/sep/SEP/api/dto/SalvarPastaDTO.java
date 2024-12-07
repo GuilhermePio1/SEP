@@ -14,5 +14,5 @@ public class SalvarPastaDTO {
 	
 	private String arquivoBase64;
 	
-	private String encontroId;
+	private Long encontroId;
 }
