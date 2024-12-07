@@ -12,5 +12,6 @@ public class SalvarEncontroDTO {
 
 	@NotBlank(message = "O nome é obrigatório")
 	private String nome;
-	
+
+	private String descricao;
 }

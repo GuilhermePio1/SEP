@@ -36,7 +36,7 @@ public class EncontroController {
 	@GetMapping
 	public List<ListarEncontroDTO> listar() {
 		return encontroService.listar().stream()
-				.map(encontro -> EncontroBuilder.toListarEncontroDTO(encontro))
+				.map(EncontroBuilder::toListarEncontroDTO)
 				.collect(Collectors.toList());
 	}
 	

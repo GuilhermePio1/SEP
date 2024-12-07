@@ -36,7 +36,7 @@ public class PastaController {
 	@GetMapping
 	public List<ListarPastaDTO> listar() {
 		return pastaService.listar().stream()
-				.map(pasta -> PastaBuilder.toListarPastaDTO(pasta))
+				.map(PastaBuilder::toListarPastaDTO)
 				.collect(Collectors.toList());
 	}
 	

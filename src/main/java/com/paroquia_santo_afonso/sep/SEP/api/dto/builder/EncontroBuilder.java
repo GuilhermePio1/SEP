@@ -11,9 +11,9 @@ public class EncontroBuilder {
 		return ListarEncontroDTO.builder()
 				.id(encontro.getId())
 				.nome(encontro.getNome())
-				.pastas(encontro.getPastas().stream()
-						.map(pasta -> PastaBuilder.toListarPastaDTO(pasta))
-						.collect(Collectors.toList()))
+				.pastas(encontro.getPastas() != null ? encontro.getPastas().stream()
+						.map(PastaBuilder::toListarPastaDTO)
+						.collect(Collectors.toList()) : null)
 				.build();
 	}
 	
