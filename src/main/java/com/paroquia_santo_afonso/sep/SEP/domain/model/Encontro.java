@@ -10,6 +10,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
+import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -19,6 +20,7 @@ import lombok.ToString;
 @Data
 @EqualsAndHashCode(exclude = "pastas")
 @ToString(exclude = "pastas")
+@Builder
 public class Encontro {
 	
 	@Id
