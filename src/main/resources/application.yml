@@ -3,6 +3,10 @@ spring:
     name: Sistema encontros paroquiais
   profiles:
     active: dev
+  servlet:
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 100MB
 jwt:
   keystore: classpath:Segue-me-Encontro-de-Jovens-com-Cristo.jks
   keystore-password: Encontro-de-Casais-com-Cristo

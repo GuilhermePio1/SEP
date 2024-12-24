@@ -8,11 +8,10 @@ import lombok.Setter;
 @Getter
 @Setter
 @Builder
-public class SalvarPastaDTO {
+public class SalvarEquipeDTO {
 	@NotBlank(message = "A equipe é obrigatória")
 	private String equipe;
 	
-	private String arquivoBase64;
-	
 	private Long encontroId;
+
 }
