@@ -19,8 +19,8 @@ import lombok.ToString;
 @Entity
 @Table(name = "encontros")
 @Data
-@EqualsAndHashCode(exclude = "pastas")
-@ToString(exclude = "pastas")
+@EqualsAndHashCode(exclude = "equipes")
+@ToString(exclude = "equipes")
 @Builder
 public class Encontro {
 	
@@ -32,17 +32,17 @@ public class Encontro {
 	private String nome;
 	
 	@OneToMany(mappedBy = "encontro", cascade = CascadeType.REMOVE)
-	private List<Pasta> pastas;
+	private List<Equipe> equipes;
 
-	public Encontro(Long id, @NotBlank(message = "O nome é obrigatório") String nome, List<Pasta> pastas) {
+	public Encontro(Long id, @NotBlank(message = "O nome é obrigatório") String nome, List<Equipe> equipes) {
 		super();
 		this.id = id;
 		this.nome = nome;
-		this.pastas = pastas;
+		this.equipes = equipes;
 	}
 	
 	public Encontro() {
-		this.pastas = new ArrayList<>();
+		this.equipes = new ArrayList<>();
 	}
 	
 	public Encontro(Long id) {

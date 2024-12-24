@@ -1,5 +1,6 @@
 package com.paroquia_santo_afonso.sep.SEP.api.dto;
 
+import com.paroquia_santo_afonso.sep.SEP.domain.model.Pasta;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -7,12 +8,12 @@ import lombok.Setter;
 @Getter
 @Setter
 @Builder
-public class ListarPastaDTO {
+public class ListarEquipeDTO {
 	private Long id;
 	
 	private String equipe;
 	
-	private String arquivoBase64;
+	private Pasta pasta;
 	
-	private Long encontroId;
+	private ListarEncontroEquipeDTO encontro;
 }

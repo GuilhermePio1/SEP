@@ -86,6 +86,18 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler{
 		
 		return handleExceptionInternal(ex, problem, headers, httpStatus, request);
 	}
+
+	@ExceptionHandler(RuntimeException.class)
+	public ResponseEntity<Object> handleRuntimeException(RuntimeException ex, WebRequest request) {
+		HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
+		ProblemType problemType = ProblemType.ERRO_DE_SISTEMA;
+		String detail = "Erro ao processar requisição.";
+
+		Problem problem = createProblemBuilder(status, problemType, detail).build();
+
+		ex.printStackTrace();
+		return handleExceptionInternal(ex, problem, new HttpHeaders(), status, request);
+	}
 	
 	private Problem.ProblemBuilder createProblemBuilder(HttpStatus status, ProblemType problemType, String detail) {
 		return Problem.builder()

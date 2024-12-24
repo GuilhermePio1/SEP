@@ -1,7 +1,6 @@
 package com.paroquia_santo_afonso.sep.SEP.api.controller;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -35,15 +34,13 @@ public class EncontroController {
 
 	@GetMapping
 	public List<ListarEncontroDTO> listar() {
-		return encontroService.listar().stream()
-				.map(EncontroBuilder::toListarEncontroDTO)
-				.collect(Collectors.toList());
+		return encontroService.listar();
 	}
 	
 	@GetMapping("/{encontroId}")
 	public ResponseEntity<ListarEncontroDTO> buscar(@PathVariable Long encontroId) {
 		return encontroService.buscar(encontroId)
-				.map(encontro -> ResponseEntity.ok(EncontroBuilder.toListarEncontroDTO(encontro)))
+				.map(ResponseEntity::ok)
 				.orElse(ResponseEntity.notFound().build());
 	}
 	

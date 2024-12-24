@@ -11,12 +11,12 @@ public class EncontroBuilder {
 		return ListarEncontroDTO.builder()
 				.id(encontro.getId())
 				.nome(encontro.getNome())
-				.pastas(encontro.getPastas() != null ? encontro.getPastas().stream()
-						.map(PastaBuilder::toListarPastaDTO)
+				.equipes(encontro.getEquipes() != null ? encontro.getEquipes().stream()
+						.map(EquipeBuilder::toListarEquipeDTOParaEncontro)
 						.collect(Collectors.toList()) : null)
 				.build();
 	}
-	
+
 	public static Encontro toEncontro(SalvarEncontroDTO salvarEncontroDTO) {
 		return Encontro.builder()
 				.nome(salvarEncontroDTO.getNome())

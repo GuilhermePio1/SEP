@@ -1,15 +1,6 @@
 package com.paroquia_santo_afonso.sep.SEP.domain.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.Lob;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
-import jakarta.validation.constraints.NotBlank;
+import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Data;
 
@@ -18,28 +9,29 @@ import lombok.Data;
 @Data
 @Builder
 public class Pasta {
-	
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
-	
-	@NotBlank(message = "A equipe é obrigatório")
-	private String equipe;
-	
-	@Lob
-	private byte[] arquivo;
-	
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "encontro_id")
-	private Encontro encontro;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-	public Pasta(Long id, @NotBlank(message = "A equipe é obrigatório") String equipe, byte[] arquivo,
-			Encontro encontro) {
-		this.id = id;
-		this.equipe = equipe;
-		this.arquivo = arquivo;
-		this.encontro = encontro;
-	}
-	
-	public Pasta() { }
+    private String nomeArquivo;
+
+    private String contentType;
+
+    @Lob
+    private byte[] arquivo;
+
+    public Pasta(Long id, String nomeArquivo, String contentType, byte[] arquivo) {
+        this.id = id;
+        this.nomeArquivo = nomeArquivo;
+        this.contentType = contentType;
+        this.arquivo = arquivo;
+    }
+
+    public Pasta(String nomeArquivo, String contentType, byte[] arquivo) {
+        this.nomeArquivo = nomeArquivo;
+        this.contentType = contentType;
+        this.arquivo = arquivo;
+    }
+
+    public Pasta() { }
 }
