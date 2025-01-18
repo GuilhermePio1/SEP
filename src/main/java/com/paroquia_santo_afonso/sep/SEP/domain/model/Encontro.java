@@ -35,7 +35,6 @@ public class Encontro {
 	private List<Equipe> equipes;
 
 	public Encontro(Long id, @NotBlank(message = "O nome é obrigatório") String nome, List<Equipe> equipes) {
-		super();
 		this.id = id;
 		this.nome = nome;
 		this.equipes = equipes;
