@@ -2,10 +2,7 @@ package com.paroquia_santo_afonso.sep.SEP.domain.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
-import lombok.Builder;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
+import lombok.*;
 
 @Entity
 @Table(name = "equipes")
@@ -13,6 +10,8 @@ import lombok.ToString;
 @EqualsAndHashCode(exclude = {"encontro", "pasta"})
 @ToString(exclude = {"encontro", "pasta"})
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class Equipe {
 	
 	@Id
@@ -30,12 +29,4 @@ public class Equipe {
 	@JoinColumn(name = "pasta_id", referencedColumnName = "id")
 	private Pasta pasta;
 
-	public Equipe(Long id, @NotBlank(message = "O nome da equipe é obrigatório") String nome, Encontro encontro, Pasta pasta) {
-		this.id = id;
-		this.nome = nome;
-		this.pasta = pasta;
-		this.encontro = encontro;
-	}
-	
-	public Equipe() { }
 }
