@@ -1,6 +1,5 @@
 package com.paroquia_santo_afonso.sep.SEP.domain.model;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.persistence.CascadeType;
@@ -16,8 +15,8 @@ import lombok.*;
 @Entity
 @Table(name = "encontros")
 @Data
-@EqualsAndHashCode(exclude = "equipes")
-@ToString(exclude = "equipes")
+@EqualsAndHashCode(exclude = {"equipes"})
+@ToString(exclude = {"equipes"})
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor

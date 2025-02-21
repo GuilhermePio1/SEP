@@ -1,5 +1,8 @@
 package com.paroquia_santo_afonso.sep.SEP.domain.model;
 
+import lombok.Getter;
+
+@Getter
 public enum Sacramento {
     BATISMO("Batismo"),
     PRIMEIRA_EUCARISTIA("Primeira Eucaristia"),

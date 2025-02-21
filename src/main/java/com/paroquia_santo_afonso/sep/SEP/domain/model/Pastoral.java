@@ -2,10 +2,7 @@ package com.paroquia_santo_afonso.sep.SEP.domain.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.List;
 
@@ -15,6 +12,8 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@EqualsAndHashCode(exclude = "equipista")
+@ToString(exclude = {"equipista"})
 public class Pastoral {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

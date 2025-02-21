@@ -7,8 +7,6 @@ import lombok.*;
 @Entity
 @Table(name = "equipes")
 @Data
-@EqualsAndHashCode(exclude = {"encontro", "pasta"})
-@ToString(exclude = {"encontro", "pasta"})
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
