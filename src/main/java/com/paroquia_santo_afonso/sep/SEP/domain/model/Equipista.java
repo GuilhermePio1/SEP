@@ -4,8 +4,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Past;
-import lombok.Builder;
-import lombok.Data;
+import lombok.*;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -15,6 +14,10 @@ import java.util.Set;
 @Table(name = "equipistas")
 @Data
 @Builder
+@ToString(exclude = {"pastorais", "participacoesEncontros"})
+@EqualsAndHashCode(exclude = {"pastorais", "participacoesEncontros"})
+@AllArgsConstructor
+@NoArgsConstructor
 public class Equipista {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -45,11 +48,14 @@ public class Equipista {
 
     private String filhos;
 
-    @ManyToMany(cascade = { CascadeType.PERSIST, CascadeType.MERGE })
+    @ManyToMany(cascade = { CascadeType.MERGE })
     @JoinTable(
             name = "equipista_pastoral",
             joinColumns = @JoinColumn(name = "equipista_id"),
-            inverseJoinColumns = @JoinColumn(name = "pastoral_id")
+            inverseJoinColumns = @JoinColumn(name = "pastoral_id"),
+            uniqueConstraints = {
+                    @UniqueConstraint(columnNames = {"equipista_id", "pastoral_id"})
+            }
     )
     private List<Pastoral> pastorais;
 

@@ -4,7 +4,8 @@ public enum TipoParticipacao {
     CASAL_COORDENADOR("Casal Coordenador"),
     EQUIPISTA_COORDENADOR("Equipista Coordenador"),
     CASAL("Casal"),
-    EQUIPISTA("Equipista");
+    EQUIPISTA("Equipista"),
+    ENCONTRISTA("Encontrista");
 
     private final String title;
 
