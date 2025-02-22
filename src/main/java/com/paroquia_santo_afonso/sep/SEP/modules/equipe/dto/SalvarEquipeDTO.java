@@ -11,7 +11,6 @@ import lombok.Setter;
 public class SalvarEquipeDTO {
 	@NotBlank(message = "A equipe é obrigatória")
 	private String equipe;
-	
 	private Long encontroId;
-
+	private Long pastaId;
 }
