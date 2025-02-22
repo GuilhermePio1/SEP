@@ -12,3 +12,11 @@ jwt:
   keystore-password: Encontro-de-Casais-com-Cristo
   key-alias: jwt-secret
   key-password: Encontro-de-Casais-com-Cristo
+google:
+  credentials:
+    path: credentials/sistema-de-encontros-paroquias-2e30cad2dace.json
+  application:
+    name: sistema-de-encontros-paroquias
+  spreadsheet:
+    id: 1KbppwLydy8YHwM5kh5sT2art3NCSoKs8s3rdTLXxGCc
+    range: "B2:F;I2:K;O2:O;Q2:Q;S2:S;U2:U;W2:W;Y2:Y"
