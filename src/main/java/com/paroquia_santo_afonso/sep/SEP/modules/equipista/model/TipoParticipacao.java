@@ -1,5 +1,8 @@
 package com.paroquia_santo_afonso.sep.SEP.modules.equipista.model;
 
+import lombok.Getter;
+
+@Getter
 public enum TipoParticipacao {
     CASAL_COORDENADOR("Casal Coordenador"),
     EQUIPISTA_COORDENADOR("Equipista Coordenador"),
