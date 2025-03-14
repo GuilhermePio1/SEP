@@ -1,11 +1,13 @@
 package com.paroquia_santo_afonso.sep.SEP.modules.equipista.model;
 
+import com.paroquia_santo_afonso.sep.SEP.common.base.model.FileBaseEntity;
 import com.paroquia_santo_afonso.sep.SEP.modules.pastoral.model.Pastoral;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Past;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -14,19 +16,12 @@ import java.util.Set;
 @Entity
 @Table(name = "equipistas")
 @Data
-@Builder
+@SuperBuilder
 @ToString(exclude = {"pastorais", "participacoesEncontros"})
-@EqualsAndHashCode(exclude = {"pastorais", "participacoesEncontros"})
+@EqualsAndHashCode(exclude = {"pastorais", "participacoesEncontros"}, callSuper = false)
 @AllArgsConstructor
 @NoArgsConstructor
-public class Equipista {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @Lob
-    private byte[] foto;
-
+public class Equipista extends FileBaseEntity {
     @NotBlank(message = "O nome é obrigatório.")
     private String nome;
 
@@ -49,7 +44,7 @@ public class Equipista {
 
     private String filhos;
 
-    @ManyToMany(cascade = { CascadeType.MERGE })
+    @ManyToMany
     @JoinTable(
             name = "equipista_pastoral",
             joinColumns = @JoinColumn(name = "equipista_id"),
@@ -63,7 +58,10 @@ public class Equipista {
     @Enumerated(EnumType.STRING)
     private Sacramento sacramento;
 
-    @OneToMany(mappedBy = "equipista")
+    @OneToMany(mappedBy = "equipista", cascade = CascadeType.REMOVE)
     Set<ParticipacaoEncontro> participacoesEncontros;
 
+    public Equipista(Long id) {
+        this.setId(id);
+    }
 }

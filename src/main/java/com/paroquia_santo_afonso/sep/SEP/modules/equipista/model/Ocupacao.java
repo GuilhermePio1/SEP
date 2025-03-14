@@ -1,5 +1,8 @@
 package com.paroquia_santo_afonso.sep.SEP.modules.equipista.model;
 
+import lombok.Getter;
+
+@Getter
 public enum Ocupacao {
     APOSENTADO("Aposentado/a"),
     ASSALARIADO_CLT("Assalariado CLT"),

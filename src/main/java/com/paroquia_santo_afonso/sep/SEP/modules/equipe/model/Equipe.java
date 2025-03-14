@@ -28,4 +28,8 @@ public class Equipe {
 	@JoinColumn(name = "pasta_id", referencedColumnName = "id")
 	private Pasta pasta;
 
+	public Equipe(Long id) {
+		this.id = id;
+	}
+
 }
