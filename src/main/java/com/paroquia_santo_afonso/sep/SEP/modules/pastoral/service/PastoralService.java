@@ -1,5 +1,6 @@
 package com.paroquia_santo_afonso.sep.SEP.modules.pastoral.service;
 
+import com.paroquia_santo_afonso.sep.SEP.common.exception.PastoralUsadaException;
 import com.paroquia_santo_afonso.sep.SEP.common.exception.ResourceNotFoundException;
 import com.paroquia_santo_afonso.sep.SEP.modules.pastoral.dto.PastoralRequestDTO;
 import com.paroquia_santo_afonso.sep.SEP.modules.pastoral.dto.PastoralResponseDTO;
@@ -7,6 +8,7 @@ import com.paroquia_santo_afonso.sep.SEP.modules.pastoral.mapper.PastoralMapper;
 import com.paroquia_santo_afonso.sep.SEP.modules.pastoral.model.Pastoral;
 import com.paroquia_santo_afonso.sep.SEP.modules.pastoral.repository.PastoralRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -56,6 +58,12 @@ public class PastoralService {
             throw new ResourceNotFoundException("Pastoral não encontrada.");
         }
 
-        pastoralRepository.deleteById(id);
+        try {
+            pastoralRepository.deleteById(id);
+            pastoralRepository.flush();
+        }catch (DataIntegrityViolationException e) {
+            throw new PastoralUsadaException("Está pastoral ainda está sendo usada no sistema, não é possível excluí-la.");
+        }
+
     }
 }
