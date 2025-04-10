@@ -1,67 +1,49 @@
 package com.paroquia_santo_afonso.sep.SEP.modules.pastoral.controller;
 
-import com.paroquia_santo_afonso.sep.SEP.modules.pastoral.dto.PastoralDTO;
-import com.paroquia_santo_afonso.sep.SEP.modules.pastoral.builder.PastoralBuilder;
-import com.paroquia_santo_afonso.sep.SEP.modules.pastoral.model.Pastoral;
+import com.paroquia_santo_afonso.sep.SEP.modules.pastoral.dto.PastoralRequestDTO;
+import com.paroquia_santo_afonso.sep.SEP.modules.pastoral.dto.PastoralResponseDTO;
 import com.paroquia_santo_afonso.sep.SEP.modules.pastoral.service.PastoralService;
-import jakarta.validation.Valid;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import lombok.RequiredArgsConstructor;
 
-import java.util.List;
-import java.util.stream.Collectors;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/pastoral")
+@RequiredArgsConstructor
 public class PastoralController {
     private final PastoralService pastoralService;
 
-    public PastoralController(PastoralService pastoralService) {
-        this.pastoralService = pastoralService;
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public PastoralResponseDTO criar(@RequestBody PastoralRequestDTO pastoralRequestDTO) {
+        return pastoralService.criar(pastoralRequestDTO);
     }
 
     @GetMapping
-    public List<PastoralDTO> listar() {
-        return pastoralService.listar().stream()
-                .map(PastoralBuilder::toPastoralDTO)
-                .collect(Collectors.toList());
+    @ResponseStatus(HttpStatus.OK)
+    public Page<PastoralResponseDTO> listar(@PageableDefault() Pageable pageable) {
+        return pastoralService.listar(pageable);
     }
 
-    @GetMapping("/{pastoralId}")
-    public ResponseEntity<PastoralDTO> buscar(@PathVariable Long pastoralId) {
-        return pastoralService.buscar(pastoralId)
-                .map(PastoralBuilder::toPastoralDTO)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    @GetMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public PastoralResponseDTO buscar(@PathVariable Long id) {
+        return pastoralService.buscarPorId(id);
     }
 
-    @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public PastoralDTO adicionar(@Valid @RequestBody PastoralDTO pastoralDTO) {
-        Pastoral pastoral = PastoralBuilder.toPastoral(pastoralDTO);
-        return PastoralBuilder.toPastoralDTO(pastoralService.salvar(pastoral));
+    @PutMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public PastoralResponseDTO editar(@PathVariable Long id, @RequestBody PastoralRequestDTO pastoralRequestDTO) {
+        return pastoralService.atualizar(id, pastoralRequestDTO);
     }
 
-    @PutMapping("/{pastoralId}")
-    public ResponseEntity<PastoralDTO> atualizar(@PathVariable Long pastoralId, @Valid @RequestBody PastoralDTO pastoralDTO) {
-        if (!pastoralService.existsById(pastoralId)) {
-            return ResponseEntity.notFound().build();
-        }
-        Pastoral pastoral = PastoralBuilder.toPastoral(pastoralDTO);
-        pastoral.setId(pastoralId);
-
-        return ResponseEntity.ok(PastoralBuilder.toPastoralDTO(pastoralService.salvar(pastoral)));
-    }
-
-    @DeleteMapping("/{pastoralId}")
-    public ResponseEntity<Void> remover(@PathVariable Long pastoralId) {
-        if (!pastoralService.existsById(pastoralId)) {
-            return ResponseEntity.notFound().build();
-        }
-
-        pastoralService.excluir(pastoralId);
-
-        return ResponseEntity.noContent().build();
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void remover(@PathVariable Long id) {
+        pastoralService.deletar(id);
     }
 }

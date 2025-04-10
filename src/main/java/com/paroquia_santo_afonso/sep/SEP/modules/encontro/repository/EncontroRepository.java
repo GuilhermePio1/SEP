@@ -1,5 +1,8 @@
 package com.paroquia_santo_afonso.sep.SEP.modules.encontro.repository;
 
+import com.paroquia_santo_afonso.sep.SEP.modules.encontro.projection.EncontroProjection;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -9,5 +12,6 @@ import java.util.Optional;
 
 @Repository
 public interface EncontroRepository extends JpaRepository<Encontro, Long>{
+    Page<EncontroProjection> findAllProjectedBy(Pageable pageable);
     Optional<Encontro> findByNome(String nome);
 }

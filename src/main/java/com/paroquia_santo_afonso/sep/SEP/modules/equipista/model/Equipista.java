@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Past;
+import jakarta.validation.constraints.Pattern;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
@@ -22,17 +23,25 @@ import java.util.Set;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Equipista extends FileBaseEntity {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
     @NotBlank(message = "O nome é obrigatório.")
+    @Column(nullable = false)
     private String nome;
 
-    @Past
+    @Past(message = "A data de nascimento precisa estar no passado.")
     @NotNull(message = "A data de nascimento é obrigatório.")
+    @Column(nullable = false)
     private LocalDate dataNascimento;
 
     @Embedded
     private Endereco endereco;
 
     @NotBlank(message = "O número de telefone é obrigatório.")
+    @Column(nullable = false)
+    @Pattern(regexp = "\\d{11}", message = "O número de telefone deve conter 11 dígitos")
     private String numeroTelefone;
 
     @Embedded
@@ -40,6 +49,7 @@ public class Equipista extends FileBaseEntity {
 
     @Enumerated(EnumType.STRING)
     @NotNull(message = "O estado civil é obrigatório.")
+    @Column(nullable = false)
     private EstadoCivil estadoCivil;
 
     private String filhos;

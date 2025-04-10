@@ -10,7 +10,6 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 @NoArgsConstructor
 public abstract class FileBaseDTO {
-    private Long id;
     private String fileName;
     private String fileType;
     private byte[] fileData;

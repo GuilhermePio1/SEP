@@ -13,17 +13,21 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@EqualsAndHashCode(exclude = "equipista")
-@ToString(exclude = {"equipista"})
+@EqualsAndHashCode(exclude = "equipistas")
+@ToString(exclude = {"equipistas"})
 public class Pastoral {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @NotBlank(message = "O nome é obrigatório")
+    @Column(nullable = false)
     private String nome;
+    
+    @ManyToMany(mappedBy = "pastorais", fetch = FetchType.LAZY)
+    private List<Equipista> equipistas;
 
-    @ManyToMany(mappedBy = "pastorais")
-    private List<Equipista> equipista;
-
+    public Pastoral(Long id) {
+        this.id = id;
+    }
 }

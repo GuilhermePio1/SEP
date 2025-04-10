@@ -1,76 +1,50 @@
 package com.paroquia_santo_afonso.sep.SEP.modules.encontro.controller;
 
-import java.util.List;
-
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
-
-import com.paroquia_santo_afonso.sep.SEP.modules.encontro.dto.ListarEncontroDTO;
-import com.paroquia_santo_afonso.sep.SEP.modules.encontro.dto.SalvarEncontroDTO;
-import com.paroquia_santo_afonso.sep.SEP.modules.encontro.builder.EncontroBuilder;
-import com.paroquia_santo_afonso.sep.SEP.modules.encontro.model.Encontro;
+import com.paroquia_santo_afonso.sep.SEP.modules.encontro.dto.EncontroRequestDTO;
+import com.paroquia_santo_afonso.sep.SEP.modules.encontro.dto.EncontroResponseDTO;
+import com.paroquia_santo_afonso.sep.SEP.modules.encontro.projection.EncontroProjection;
 import com.paroquia_santo_afonso.sep.SEP.modules.encontro.service.EncontroService;
-
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/encontros")
+@RequiredArgsConstructor
 public class EncontroController {
-	
 	private final EncontroService encontroService;
-	
-	public EncontroController(EncontroService encontroService) {
-		this.encontroService = encontroService;
+
+	@PostMapping
+	@ResponseStatus(HttpStatus.CREATED)
+	public EncontroResponseDTO criar(@RequestBody @Valid EncontroRequestDTO dto) {
+		return encontroService.criar(dto);
 	}
 
 	@GetMapping
-	public List<ListarEncontroDTO> listar() {
-		return encontroService.listar();
+	@ResponseStatus(HttpStatus.OK)
+	public Page<EncontroProjection> listar(@PageableDefault() Pageable pageable) {
+		return encontroService.listar(pageable);
 	}
-	
-	@GetMapping("/{encontroId}")
-	public ResponseEntity<ListarEncontroDTO> buscar(@PathVariable Long encontroId) {
-		return encontroService.buscar(encontroId)
-				.map(ResponseEntity::ok)
-				.orElse(ResponseEntity.notFound().build());
+
+	@GetMapping("/{id}")
+	@ResponseStatus(HttpStatus.OK)
+	public EncontroResponseDTO buscarPorId(@PathVariable Long id) {
+		return encontroService.buscarPorId(id);
 	}
-	
-	@PostMapping
-	@ResponseStatus(HttpStatus.CREATED)
-	public ListarEncontroDTO adicionar(@Valid @RequestBody SalvarEncontroDTO salvarEncontroDTO) {
-		Encontro encontro = EncontroBuilder.toEncontro(salvarEncontroDTO);
-		return EncontroBuilder.toListarEncontroDTO(encontroService.salvar(encontro));
+
+	@PutMapping("/{id}")
+	@ResponseStatus(HttpStatus.OK)
+	public EncontroResponseDTO atualizar(@PathVariable Long id, @RequestBody @Valid EncontroRequestDTO dto) {
+		return encontroService.atualizar(id, dto);
 	}
-	
-	@PutMapping("/{encontroId}")
-	public ResponseEntity<ListarEncontroDTO> atualizar(@PathVariable Long encontroId, @Valid @RequestBody SalvarEncontroDTO salvarEncontroDTO) {
-		if (!encontroService.existsById(encontroId)) {
-			return ResponseEntity.notFound().build();
-		}
-		Encontro encontro = EncontroBuilder.toEncontro(salvarEncontroDTO);
-		encontro.setId(encontroId);
-		
-		return ResponseEntity.ok(EncontroBuilder.toListarEncontroDTO(encontroService.salvar(encontro)));
+
+	@DeleteMapping("/{id}")
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	public void deletar(@PathVariable Long id) {
+		encontroService.deletar(id);
 	}
-	
-	@DeleteMapping("/{encontroId}")
-	public ResponseEntity<Void> remover(@PathVariable Long encontroId) {
-		if (!encontroService.existsById(encontroId)) {
-			return ResponseEntity.notFound().build();
-		}
-		
-		encontroService.excluir(encontroId);
-		
-		return ResponseEntity.noContent().build();
-	}
-	
 }

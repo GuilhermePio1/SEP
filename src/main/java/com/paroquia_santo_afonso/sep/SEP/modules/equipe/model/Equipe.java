@@ -1,35 +1,34 @@
 package com.paroquia_santo_afonso.sep.SEP.modules.equipe.model;
 
+import com.paroquia_santo_afonso.sep.SEP.common.base.model.FileBaseEntity;
 import com.paroquia_santo_afonso.sep.SEP.modules.encontro.model.Encontro;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
+@EqualsAndHashCode(callSuper = true)
 @Entity
 @Table(name = "equipes")
 @Data
-@Builder
+@SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
-public class Equipe {
-	
+public class Equipe extends FileBaseEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
-	
+
+	@Column(nullable = false)
 	@NotBlank(message = "O nome da equipe é obrigatório")
 	private String nome;
 	
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "encontro_id")
+	@ManyToOne
+	@JoinColumn(name = "encontro_id", nullable = false)
 	private Encontro encontro;
 
-	@OneToOne(cascade = CascadeType.ALL)
-	@JoinColumn(name = "pasta_id", referencedColumnName = "id")
-	private Pasta pasta;
-
 	public Equipe(Long id) {
-		this.id = id;
+		setId(id);
 	}
 
 }

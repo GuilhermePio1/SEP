@@ -1,160 +1,64 @@
 package com.paroquia_santo_afonso.sep.SEP.modules.equipe.controller;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.stream.Collectors;
+import com.paroquia_santo_afonso.sep.SEP.common.base.dto.FileDownloadDTO;
+import com.paroquia_santo_afonso.sep.SEP.common.utils.ControllerUtils;
+import com.paroquia_santo_afonso.sep.SEP.modules.equipe.dto.EquipeResponseDTO;
+import com.paroquia_santo_afonso.sep.SEP.modules.equipe.dto.EquipeRequestDTO;
+import com.paroquia_santo_afonso.sep.SEP.modules.equipe.service.EquipeService;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 
-import com.paroquia_santo_afonso.sep.SEP.modules.equipe.model.Pasta;
-import com.paroquia_santo_afonso.sep.SEP.modules.equipe.service.PastaService;
+import org.springframework.core.io.Resource;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import com.paroquia_santo_afonso.sep.SEP.modules.equipe.dto.ListarEquipeDTO;
-import com.paroquia_santo_afonso.sep.SEP.modules.equipe.dto.SalvarEquipeDTO;
-import com.paroquia_santo_afonso.sep.SEP.modules.equipe.builder.EquipeBuilder;
-import com.paroquia_santo_afonso.sep.SEP.modules.equipe.model.Equipe;
-import com.paroquia_santo_afonso.sep.SEP.modules.equipe.service.EquipeService;
-
-import jakarta.validation.Valid;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.server.ResponseStatusException;
 
-import java.util.Optional;
-
-@Slf4j
 @RestController
 @RequestMapping("/equipes")
+@RequiredArgsConstructor
 public class EquipeController {
 	private final EquipeService equipeService;
-	private final PastaService pastaService;
-
-	public EquipeController(
-			EquipeService equipeService,
-			PastaService pastaService
-	) {
-		this.pastaService = pastaService;
-		this.equipeService = equipeService;
+	
+	@PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+	@ResponseStatus(HttpStatus.CREATED)
+	public EquipeResponseDTO criar(@Valid EquipeRequestDTO dto, @RequestParam(required = false, name = "arquivo") MultipartFile arquivo) {
+		return equipeService.saveEntityWithFile(dto, arquivo);
 	}
 
 	@GetMapping
-	public List<ListarEquipeDTO> listar() {
-		return equipeService.listar().stream()
-				.map(EquipeBuilder::toListarEquipeDTO)
-				.collect(Collectors.toList());
+	@ResponseStatus(HttpStatus.OK)
+	public Page<EquipeResponseDTO> listarTodos(@PageableDefault() Pageable pageable) {
+		return equipeService.findAllProjectedBy(pageable);
+	}
+	
+	@GetMapping("/{id}")
+	@ResponseStatus(HttpStatus.OK)
+	public EquipeResponseDTO buscarPorId(@PathVariable Long id) {
+		return equipeService.findEntityWithFileById(id);
 	}
 
-	@GetMapping("/{equipeId}")
-	public ResponseEntity<ListarEquipeDTO> buscar(@PathVariable Long equipeId) {
-		return equipeService.buscar(equipeId)
-				.map(equipe -> ResponseEntity.ok(EquipeBuilder.toListarEquipeDTO(equipe)))
-				.orElse(ResponseEntity.notFound().build());
+	@GetMapping("/pasta/{id}")
+	@ResponseStatus(HttpStatus.OK)
+	public ResponseEntity<Resource> downloadPasta(@PathVariable(name = "id") Long id) {
+		FileDownloadDTO fileDownload = equipeService.downloadFile(id);
+		return ControllerUtils.createFileResponse(fileDownload);
 	}
 
-	@GetMapping("/pasta/{pastaId}")
-	public ResponseEntity<byte[]> downloadPasta(@PathVariable("pastaId") Long pastaId) {
-		try {
-			Optional<Pasta> pastaOptional = pastaService.buscarPorId(pastaId);
-
-			if (pastaOptional.isEmpty()) return ResponseEntity.notFound().build();
-
-			Pasta pasta = pastaOptional.get();
-			byte[] data = pasta.getArquivo();
-
-			return ResponseEntity.ok()
-					.contentType(MediaType.parseMediaType(pasta.getContentType()))
-					.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + pasta.getNomeArquivo() + "\"")
-					.body(data);
-		} catch (ResponseStatusException r) {
-			log.info("Erro ao baixar arquivo", r);
-			return ResponseEntity.badRequest().build();
-		} catch (Exception e) {
-			log.info("Erro inesperado", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-		}
+	@PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+	@ResponseStatus(HttpStatus.OK)
+	public EquipeResponseDTO atualizar(@PathVariable Long id, @Valid EquipeRequestDTO dto, @RequestParam(required = false, name = "arquivo") MultipartFile arquivo) {
+		return equipeService.updateEntityWithFile(dto, id, arquivo);
 	}
 
-	@PostMapping
-	@Transactional
-	@ResponseStatus(HttpStatus.CREATED)
-	public ListarEquipeDTO adicionar(
-			@Valid SalvarEquipeDTO salvarEquipeDTO,
-			@RequestParam(value = "arquivo", required = false) MultipartFile arquivo
-	) {
-		try {
-			Equipe equipe = EquipeBuilder.toEquipe(salvarEquipeDTO);
-
-			if (arquivo != null && !arquivo.isEmpty()) {
-				Pasta pasta = pastaService.salvar(arquivo);
-				equipe.setPasta(pasta);
-			}
-
-			return EquipeBuilder.toListarEquipeDTO(equipeService.salvar(equipe));
-		} catch (IOException e) {
-			throw new RuntimeException("Erro ao processar arquivo:" + e);
-		}
-
+	@DeleteMapping("/{id}")
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	public void deletar(@PathVariable Long id) {
+		equipeService.deletar(id);
 	}
 
-	@PutMapping("/{equipeId}")
-	@Transactional
-	public ResponseEntity<ListarEquipeDTO> atualizar(
-			@PathVariable Long equipeId,
-			@Valid SalvarEquipeDTO salvarEquipeDTO,
-			@RequestParam(value = "arquivo", required = false) MultipartFile arquivo
-	) {
-		if (!equipeService.existsById(equipeId)) return ResponseEntity.notFound().build();
-
-		try {
-			Equipe equipe = EquipeBuilder.toEquipe(salvarEquipeDTO);
-			equipe.setId(equipeId);
-
-			Long pastaIdAtual = salvarEquipeDTO.getPastaId();
-			if (arquivo != null && !arquivo.isEmpty()) {
-				if (pastaIdAtual == null) {
-					Pasta pasta = pastaService.salvar(arquivo);
-					equipe.setPasta(pasta);
-				} else {
-					Pasta pastaSaved = pastaService.atualizar(pastaIdAtual, arquivo);
-					equipe.setPasta(pastaSaved);
-				}
-			}
-
-			return ResponseEntity.ok(EquipeBuilder.toListarEquipeDTO(equipeService.salvar(equipe)));
-		} catch (IOException e) {
-			throw new RuntimeException("Erro ao processar arquivo: " + e);
-		}
-
-	}
-
-	@Transactional
-	@DeleteMapping("/{equipeId}")
-	public ResponseEntity<Void> remover(@PathVariable Long equipeId) {
-		if (!equipeService.existsById(equipeId)) return ResponseEntity.notFound().build();
-
-		equipeService.excluir(equipeId);
-		return ResponseEntity.noContent().build();
-	}
-
-	@Transactional
-	@DeleteMapping("/{equipeId}/{pastaId}")
-	public ResponseEntity<Void> removerArquivo(
-			@PathVariable("equipeId") Long equipeId,
-			@PathVariable("pastaId") Long pastaId
-	) {
-		try {
-			equipeService.excluirPasta(equipeId, pastaId);
-			return ResponseEntity.noContent().build();
-		} catch (ResponseStatusException r) {
-			log.info("Erro ao excluir arquivo", r);
-			return ResponseEntity.badRequest().build();
-		} catch (Exception e) {
-			log.info("Erro inesperado", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-		}
-	}
 }
