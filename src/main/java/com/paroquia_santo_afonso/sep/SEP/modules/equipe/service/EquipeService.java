@@ -2,12 +2,14 @@ package com.paroquia_santo_afonso.sep.SEP.modules.equipe.service;
 
 import com.paroquia_santo_afonso.sep.SEP.common.base.service.impl.FileServiceImpl;
 import com.paroquia_santo_afonso.sep.SEP.common.exception.EquipeNotFoundException;
+import com.paroquia_santo_afonso.sep.SEP.common.exception.EquipeUsadaException;
 import com.paroquia_santo_afonso.sep.SEP.common.exception.ResourceNotFoundException;
 import com.paroquia_santo_afonso.sep.SEP.modules.equipe.dto.EquipeResponseDTO;
 import com.paroquia_santo_afonso.sep.SEP.modules.equipe.dto.EquipeRequestDTO;
 import com.paroquia_santo_afonso.sep.SEP.modules.equipe.mapper.EquipeMapper;
 import com.paroquia_santo_afonso.sep.SEP.modules.equipe.model.Equipe;
 import com.paroquia_santo_afonso.sep.SEP.modules.equipe.repository.EquipeRepository;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -38,7 +40,13 @@ public class EquipeService extends FileServiceImpl<Equipe, EquipeMapper, EquipeR
 			throw createNotFoundException(id);
 		}
 
-		repository.deleteById(id);
+		try {
+			repository.deleteById(id);
+			repository.flush();
+		} catch (DataIntegrityViolationException e) {
+			throw new EquipeUsadaException("Esta equipe ainda está sendo usada no sistema, não é possível excluí-la.");
+		}
+
 	}
 
 }

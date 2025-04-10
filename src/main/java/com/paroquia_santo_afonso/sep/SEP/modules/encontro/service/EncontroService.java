@@ -1,6 +1,7 @@
 package com.paroquia_santo_afonso.sep.SEP.modules.encontro.service;
 
 import com.paroquia_santo_afonso.sep.SEP.common.exception.EncontroNotFoundException;
+import com.paroquia_santo_afonso.sep.SEP.common.exception.EncontroUsadoException;
 import com.paroquia_santo_afonso.sep.SEP.common.exception.ResourceNotFoundException;
 import com.paroquia_santo_afonso.sep.SEP.modules.encontro.dto.EncontroRequestDTO;
 import com.paroquia_santo_afonso.sep.SEP.modules.encontro.dto.EncontroResponseDTO;
@@ -8,6 +9,7 @@ import com.paroquia_santo_afonso.sep.SEP.modules.encontro.mapper.EncontroMapper;
 import com.paroquia_santo_afonso.sep.SEP.modules.encontro.model.Encontro;
 import com.paroquia_santo_afonso.sep.SEP.modules.encontro.projection.EncontroProjection;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -57,6 +59,12 @@ public class EncontroService {
 			throw new ResourceNotFoundException("Encontro não encontrado.");
 		}
 
-		encontroRepository.deleteById(id);
+		try {
+			encontroRepository.deleteById(id);
+			encontroRepository.flush();
+		}catch (DataIntegrityViolationException e) {
+			throw new EncontroUsadoException("Este encontro ainda está sendo usado no sistema, não é possível excluí-lo.");
+		}
+
 	}
 }
