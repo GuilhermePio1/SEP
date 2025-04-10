@@ -3,13 +3,7 @@ package com.paroquia_santo_afonso.sep.SEP.modules.encontro.model;
 import java.util.List;
 
 import com.paroquia_santo_afonso.sep.SEP.modules.equipe.model.Equipe;
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
@@ -26,7 +20,8 @@ public class Encontro {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
-	
+
+	@Column(nullable = false)
 	@NotBlank(message = "O nome é obrigatório")
 	private String nome;
 	

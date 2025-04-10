@@ -1,38 +1,61 @@
 package com.paroquia_santo_afonso.sep.SEP.modules.pastoral.service;
 
+import com.paroquia_santo_afonso.sep.SEP.common.exception.ResourceNotFoundException;
+import com.paroquia_santo_afonso.sep.SEP.modules.pastoral.dto.PastoralRequestDTO;
+import com.paroquia_santo_afonso.sep.SEP.modules.pastoral.dto.PastoralResponseDTO;
+import com.paroquia_santo_afonso.sep.SEP.modules.pastoral.mapper.PastoralMapper;
 import com.paroquia_santo_afonso.sep.SEP.modules.pastoral.model.Pastoral;
 import com.paroquia_santo_afonso.sep.SEP.modules.pastoral.repository.PastoralRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class PastoralService {
-
     private final PastoralRepository pastoralRepository;
+    private final PastoralMapper pastoralMapper;
 
-    public PastoralService(PastoralRepository pastoralRepository) {
-        this.pastoralRepository = pastoralRepository;
+    @Transactional
+    public PastoralResponseDTO criar(PastoralRequestDTO dto) {
+        Pastoral pastoral = pastoralMapper.toEntity(dto);
+        Pastoral saved = pastoralRepository.save(pastoral);
+        return pastoralMapper.toResponseDTO(saved);
     }
 
-    public List<Pastoral> listar() {
-        return pastoralRepository.findAll();
+    @Transactional(readOnly = true)
+    public Page<PastoralResponseDTO> listar(Pageable pageable) {
+        return Optional.of(pastoralRepository.findAllProjectBy(pageable)
+                .map(pastoralMapper::toResponseDTO))
+                .orElse(Page.empty());
     }
 
-    public Optional<Pastoral> buscar(Long pastoralId) {
-        return pastoralRepository.findById(pastoralId);
+    @Transactional(readOnly = true)
+    public PastoralResponseDTO buscarPorId(Long id) {
+        return pastoralRepository.findById(id).map(pastoralMapper::toResponseDTO)
+                .orElseThrow(() -> new ResourceNotFoundException("Pastoral não encontrada."));
     }
 
-    public Boolean existsById(Long pastoralId) {
-        return pastoralRepository.existsById(pastoralId);
+    @Transactional
+    public PastoralResponseDTO atualizar(Long id, PastoralRequestDTO dto) {
+        Pastoral pastoral = pastoralRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Pastoral não encontrada."));
+
+        pastoralMapper.updateEntityFromDTO(dto, pastoral);
+        Pastoral updated = pastoralRepository.save(pastoral);
+        return pastoralMapper.toResponseDTO(updated);
     }
 
-    public Pastoral salvar(Pastoral pastoral) {
-        return pastoralRepository.save(pastoral);
-    }
+    @Transactional
+    public void deletar(Long id) {
+        if (!pastoralRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Pastoral não encontrada.");
+        }
 
-    public void excluir(Long pastoralId) {
-        pastoralRepository.deleteById(pastoralId);
+        pastoralRepository.deleteById(id);
     }
 }

@@ -1,69 +1,112 @@
 package com.paroquia_santo_afonso.sep.SEP.modules.equipista.service;
 
-import com.paroquia_santo_afonso.sep.SEP.common.base.repository.FileRepository;
-import com.paroquia_santo_afonso.sep.SEP.common.base.service.impl.FileServiceImpl;
-import com.paroquia_santo_afonso.sep.SEP.common.exception.EntidadeNaoEncontradaException;
-import com.paroquia_santo_afonso.sep.SEP.modules.equipista.builder.EquipistaBuilder;
-import com.paroquia_santo_afonso.sep.SEP.modules.equipista.builder.ParticipacaoEncontroBuilder;
-import com.paroquia_santo_afonso.sep.SEP.modules.equipista.dto.EquipistaDTO;
-import com.paroquia_santo_afonso.sep.SEP.modules.equipista.dto.ParticipacaoEncontroDTO;
+import com.paroquia_santo_afonso.sep.SEP.modules.equipista.dto.*;
+import com.paroquia_santo_afonso.sep.SEP.modules.equipista.mapper.ParticipacaoEncontroMapper;
+import com.paroquia_santo_afonso.sep.SEP.modules.equipista.model.ParticipacaoEncontro;
 import com.paroquia_santo_afonso.sep.SEP.modules.equipista.projection.EquipistaProjection;
-import com.paroquia_santo_afonso.sep.SEP.modules.equipista.model.Equipista;
-import com.paroquia_santo_afonso.sep.SEP.modules.equipista.repository.EquipistaRepository;
-import com.paroquia_santo_afonso.sep.SEP.modules.equipista.repository.ParticipacaoEncontroRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
+import com.paroquia_santo_afonso.sep.SEP.common.base.service.impl.FileServiceImpl;
+import com.paroquia_santo_afonso.sep.SEP.common.exception.EquipistaNotFoundException;
+import com.paroquia_santo_afonso.sep.SEP.common.exception.ResourceNotFoundException;
+import com.paroquia_santo_afonso.sep.SEP.modules.equipista.mapper.EquipistaMapper;
+import com.paroquia_santo_afonso.sep.SEP.modules.equipista.model.Equipista;
+import com.paroquia_santo_afonso.sep.SEP.modules.equipista.repository.EquipistaRepository;
+import com.paroquia_santo_afonso.sep.SEP.modules.equipista.repository.ParticipacaoEncontroRepository;
+
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
-public class EquipistaService extends FileServiceImpl<EquipistaDTO, Equipista, EquipistaBuilder> {
-
-    private final EquipistaRepository equipistaRepository;
+public class EquipistaService extends FileServiceImpl<Equipista, EquipistaMapper, EquipistaRepository, EquipistaResponseDTO, EquipistaRequestDTO>{
     private final ParticipacaoEncontroRepository participacaoEncontroRepository;
-
-    public EquipistaService(FileRepository<Equipista, Long> fileRepository, EquipistaBuilder fileBuilder, EquipistaRepository equipistaRepository, ParticipacaoEncontroRepository participacaoEncontroRepository) {
-        super(fileRepository, fileBuilder);
-        this.equipistaRepository = equipistaRepository;
-        this.participacaoEncontroRepository = participacaoEncontroRepository;
-    }
-
-    public Page<EquipistaProjection> listarEquipistasProjections(Pageable pageable) {
-        return equipistaRepository.findAllProjectedBy(pageable);
-    }
-
-    public void salvarParticipacoesEncontros(List<ParticipacaoEncontroDTO> participacoesEncontrosDto, Long equipistaId) {
-        if (participacoesEncontrosDto != null && !participacoesEncontrosDto.isEmpty() && equipistaId != null) {
-            participacoesEncontrosDto.forEach(participacaoEncontroDTO -> participacaoEncontroDTO.setEquipistaId(equipistaId));
-            participacaoEncontroRepository.saveAll(
-                    participacoesEncontrosDto.stream()
-                            .map(ParticipacaoEncontroBuilder::toParticipacaoEncontro)
-                            .collect(Collectors.toSet())
-            );
-        }
-    }
-
-    public void atualizarEquipista(EquipistaDTO equipistaDTO, Long equipistaId, MultipartFile arquivo) throws IOException {
-        if (equipistaRepository.existsById(equipistaId)) {
-            equipistaDTO.setId(equipistaId);
-            equipistaDTO.setFileData(arquivo.getBytes());
-            equipistaDTO.setFileName(arquivo.getOriginalFilename());
-            equipistaDTO.setFileType(arquivo.getContentType());
-
-            equipistaRepository.save(new EquipistaBuilder().toEntity(equipistaDTO));
-            salvarParticipacoesEncontros(equipistaDTO.getParticipacoesEncontrosDTO(), equipistaId);
-        } else {
-            throw new EntidadeNaoEncontradaException("Equipista não encontrado");
-        }
-    }
+    private final ParticipacaoEncontroMapper participacaoEncontroMapper;
     
-    public void deletarEquipista(Long equipistaId) {
-        if (equipistaRepository.existsById(equipistaId)) {
-            equipistaRepository.deleteById(equipistaId);
-        }
+    public EquipistaService(EquipistaMapper mapper, EquipistaRepository repository, ParticipacaoEncontroRepository participacaoEncontroRepository, ParticipacaoEncontroMapper participacaoEncontroMapper) {
+        super(mapper, repository);
+        this.participacaoEncontroRepository = participacaoEncontroRepository;
+        this.participacaoEncontroMapper = participacaoEncontroMapper;
     }
+
+    @Override
+    protected ResourceNotFoundException createNotFoundException(Long id) {
+        return new EquipistaNotFoundException(id);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public EquipistaResponseDTO save(EquipistaRequestDTO equipistaRequestDTO, MultipartFile file) {
+        EquipistaResponseDTO equipistaResponseDTO = super.saveEntityWithFile(equipistaRequestDTO, file);
+        List<ParticipacaoEncontroResponseDTO> participacoesEncontros = saveParticipacaoEncontro(equipistaRequestDTO.getParticipacoesEncontro(), equipistaResponseDTO.getId());
+        equipistaResponseDTO.setParticipacoesEncontro(participacoesEncontros);
+        return equipistaResponseDTO;
+    }
+
+    private List<ParticipacaoEncontroResponseDTO> saveParticipacaoEncontro(List<ParticipacaoEncontroRequestDTO> participacoesEncontrosDTO, Long idEquipista) {
+        if (participacoesEncontrosDTO != null && !participacoesEncontrosDTO.isEmpty()) {
+            List<ParticipacaoEncontro> participacaoEncontros = participacoesEncontrosDTO.stream()
+                    .map(participacaoEncontroMapper::toEntity)
+                    .peek(participacaoEncontro -> participacaoEncontro.setId(idEquipista))
+                    .toList();
+
+            return participacaoEncontroRepository.saveAll(participacaoEncontros).stream()
+                    .map(participacaoEncontroMapper::toResponseDTO)
+                    .toList();
+        }
+
+        return Collections.emptyList();
+    }
+
+    @Transactional(readOnly = true)
+    public Page<EquipistaProjection> findAllProjectedBy(Pageable pageable) {
+        return repository.findAllProjectedBy(pageable);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public EquipistaResponseDTO update(EquipistaRequestDTO equipistaRequestDTO, Long idEquipista, MultipartFile file) {
+        EquipistaResponseDTO equipistaResponseDTO = super.updateEntityWithFile(equipistaRequestDTO, idEquipista, file);
+        List<ParticipacaoEncontroResponseDTO> participacaoEncontroResponseDTOS = updateParticipacoesEncontros(equipistaRequestDTO.getParticipacoesEncontro(), idEquipista);
+        equipistaResponseDTO.setParticipacoesEncontro(participacaoEncontroResponseDTOS);
+        return equipistaResponseDTO;
+    }
+
+    private List<ParticipacaoEncontroResponseDTO> updateParticipacoesEncontros(List<ParticipacaoEncontroRequestDTO> participacoesEncontrosDTO, Long idEquipista) {
+        List<ParticipacaoEncontroResponseDTO> participacaoEncontroResponseDTOS;
+
+        List<ParticipacaoEncontro> cadastrarParticipacoes = getParticipacoesEncontrosByAcao(participacoesEncontrosDTO, AcaoParticipacaoEncontro.ATUALIZAR);
+        List<ParticipacaoEncontro> deletarParticipacoes = getParticipacoesEncontrosByAcao(participacoesEncontrosDTO, AcaoParticipacaoEncontro.DELETAR);
+        List<ParticipacaoEncontroRequestDTO> atualizarParticipacoes = participacoesEncontrosDTO != null ? participacoesEncontrosDTO.stream().filter(participacaoEncontroRequestDTO -> participacaoEncontroRequestDTO.getAcaoParticipacaoEncontroEnum().equals(AcaoParticipacaoEncontro.ATUALIZAR))
+                        .toList() : Collections.emptyList();
+
+        participacaoEncontroResponseDTOS = participacaoEncontroRepository.saveAll(cadastrarParticipacoes)
+                .stream().map(participacaoEncontroMapper::toResponseDTO)
+                .toList();
+
+        participacaoEncontroRepository.deleteAll(deletarParticipacoes);
+
+        if (!atualizarParticipacoes.isEmpty()) {
+            atualizarParticipacoes.forEach(atualizarParticipacao -> {
+                ParticipacaoEncontro participacaoEncontro = participacaoEncontroRepository.findFirstByEquipistaIdAndEquipeIdOrderByDataAtualizacao(idEquipista, atualizarParticipacao.getIdEquipe()).orElseThrow(() -> createNotFoundException(idEquipista));
+                participacaoEncontroMapper.updateEntityFromDTO(participacaoEncontro, atualizarParticipacao);
+                participacaoEncontroResponseDTOS.add(participacaoEncontroMapper.toResponseDTO(participacaoEncontroRepository.save(participacaoEncontro)));
+            });
+        }
+
+        return participacaoEncontroResponseDTOS;
+    }
+
+    private List<ParticipacaoEncontro> getParticipacoesEncontrosByAcao(List<ParticipacaoEncontroRequestDTO> participacoesEncontrosDTO, AcaoParticipacaoEncontro acaoParticipacaoEncontro) {
+        return participacoesEncontrosDTO != null ? participacoesEncontrosDTO.stream().filter(participacaoEncontroDTO -> participacaoEncontroDTO.getAcaoParticipacaoEncontroEnum().equals(acaoParticipacaoEncontro))
+                .map(participacaoEncontroMapper::toEntity)
+                .toList() : Collections.emptyList();
+    }
+
+    @Transactional
+    public void delete(Long id) {
+        Equipista equipista = repository.findById(id).orElseThrow(() -> createNotFoundException(id));
+        repository.delete(equipista);
+    }
+
 }
