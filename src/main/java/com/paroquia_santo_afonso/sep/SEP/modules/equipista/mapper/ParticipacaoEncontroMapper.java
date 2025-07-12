@@ -1,14 +1,14 @@
 package com.paroquia_santo_afonso.sep.SEP.modules.equipista.mapper;
 
-import java.time.Year;
-import java.util.Optional;
-
-import org.springframework.stereotype.Component;
-
 import com.paroquia_santo_afonso.sep.SEP.modules.equipe.model.Equipe;
 import com.paroquia_santo_afonso.sep.SEP.modules.equipista.dto.ParticipacaoEncontroRequestDTO;
 import com.paroquia_santo_afonso.sep.SEP.modules.equipista.dto.ParticipacaoEncontroResponseDTO;
 import com.paroquia_santo_afonso.sep.SEP.modules.equipista.model.ParticipacaoEncontro;
+import org.springframework.stereotype.Component;
+
+import java.time.Year;
+import java.util.Objects;
+import java.util.Optional;
 
 @Component
 public class ParticipacaoEncontroMapper {
@@ -23,11 +23,11 @@ public class ParticipacaoEncontroMapper {
     public ParticipacaoEncontroResponseDTO toResponseDTO(ParticipacaoEncontro entity) {
         return ParticipacaoEncontroResponseDTO.builder()
                 .id(entity.getId())
-                .nomeEncontro(entity.getEquipe().getEncontro().getNome())
-                .idEquipe(entity.getEquipe().getId())
-                .nomeEquipe(entity.getEquipe().getNome())
+                .nomeEncontro(Objects.nonNull(entity.getEquipe()) ? entity.getEquipe().getEncontro().getNome() : null)
+                .idEquipe(Objects.nonNull(entity.getEquipe()) ? entity.getEquipe().getId() : null)
+                .nomeEquipe(Objects.nonNull(entity.getEquipe()) ? entity.getEquipe().getNome() : null)
                 .ano(Optional.ofNullable(entity.getAno()).map(Year::getValue).orElse(null))
-                .tipoParticipacao(entity.getTipoParticipacao().getTitle())
+                .tipoParticipacao(Objects.nonNull(entity.getEquipe()) ? entity.getTipoParticipacao().getTitle() : null)
                 .build();
     }
 

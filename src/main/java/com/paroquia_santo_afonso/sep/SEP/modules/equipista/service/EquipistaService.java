@@ -1,30 +1,31 @@
 package com.paroquia_santo_afonso.sep.SEP.modules.equipista.service;
 
+import com.paroquia_santo_afonso.sep.SEP.common.base.service.impl.FileServiceImpl;
+import com.paroquia_santo_afonso.sep.SEP.common.exception.EquipistaNotFoundException;
+import com.paroquia_santo_afonso.sep.SEP.common.exception.ResourceNotFoundException;
 import com.paroquia_santo_afonso.sep.SEP.modules.equipista.dto.*;
+import com.paroquia_santo_afonso.sep.SEP.modules.equipista.mapper.EquipistaMapper;
 import com.paroquia_santo_afonso.sep.SEP.modules.equipista.mapper.ParticipacaoEncontroMapper;
+import com.paroquia_santo_afonso.sep.SEP.modules.equipista.model.Equipista;
 import com.paroquia_santo_afonso.sep.SEP.modules.equipista.model.ParticipacaoEncontro;
 import com.paroquia_santo_afonso.sep.SEP.modules.equipista.projection.EquipistaProjection;
+import com.paroquia_santo_afonso.sep.SEP.modules.equipista.repository.EquipistaRepository;
+import com.paroquia_santo_afonso.sep.SEP.modules.equipista.repository.ParticipacaoEncontroRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.paroquia_santo_afonso.sep.SEP.common.base.service.impl.FileServiceImpl;
-import com.paroquia_santo_afonso.sep.SEP.common.exception.EquipistaNotFoundException;
-import com.paroquia_santo_afonso.sep.SEP.common.exception.ResourceNotFoundException;
-import com.paroquia_santo_afonso.sep.SEP.modules.equipista.mapper.EquipistaMapper;
-import com.paroquia_santo_afonso.sep.SEP.modules.equipista.model.Equipista;
-import com.paroquia_santo_afonso.sep.SEP.modules.equipista.repository.EquipistaRepository;
-import com.paroquia_santo_afonso.sep.SEP.modules.equipista.repository.ParticipacaoEncontroRepository;
-
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
 
 @Service
-public class EquipistaService extends FileServiceImpl<Equipista, EquipistaMapper, EquipistaRepository, EquipistaResponseDTO, EquipistaRequestDTO>{
+public class EquipistaService extends FileServiceImpl<Equipista, EquipistaMapper, EquipistaRepository, EquipistaResponseDTO, EquipistaRequestDTO> {
     private final ParticipacaoEncontroRepository participacaoEncontroRepository;
     private final ParticipacaoEncontroMapper participacaoEncontroMapper;
-    
+
     public EquipistaService(EquipistaMapper mapper, EquipistaRepository repository, ParticipacaoEncontroRepository participacaoEncontroRepository, ParticipacaoEncontroMapper participacaoEncontroMapper) {
         super(mapper, repository);
         this.participacaoEncontroRepository = participacaoEncontroRepository;
@@ -77,8 +78,10 @@ public class EquipistaService extends FileServiceImpl<Equipista, EquipistaMapper
 
         List<ParticipacaoEncontro> cadastrarParticipacoes = getParticipacoesEncontrosByAcao(participacoesEncontrosDTO, AcaoParticipacaoEncontro.ATUALIZAR);
         List<ParticipacaoEncontro> deletarParticipacoes = getParticipacoesEncontrosByAcao(participacoesEncontrosDTO, AcaoParticipacaoEncontro.DELETAR);
-        List<ParticipacaoEncontroRequestDTO> atualizarParticipacoes = participacoesEncontrosDTO != null ? participacoesEncontrosDTO.stream().filter(participacaoEncontroRequestDTO -> participacaoEncontroRequestDTO.getAcaoParticipacaoEncontroEnum().equals(AcaoParticipacaoEncontro.ATUALIZAR))
-                        .toList() : Collections.emptyList();
+        List<ParticipacaoEncontroRequestDTO> atualizarParticipacoes = participacoesEncontrosDTO != null
+                ? participacoesEncontrosDTO.stream()
+                    .filter(participacaoEncontroRequestDTO -> Objects.nonNull(participacaoEncontroRequestDTO.getAcaoParticipacaoEncontroEnum()) && participacaoEncontroRequestDTO.getAcaoParticipacaoEncontroEnum().equals(AcaoParticipacaoEncontro.ATUALIZAR)).toList()
+                : Collections.emptyList();
 
         participacaoEncontroResponseDTOS = participacaoEncontroRepository.saveAll(cadastrarParticipacoes)
                 .stream().map(participacaoEncontroMapper::toResponseDTO)
@@ -98,7 +101,8 @@ public class EquipistaService extends FileServiceImpl<Equipista, EquipistaMapper
     }
 
     private List<ParticipacaoEncontro> getParticipacoesEncontrosByAcao(List<ParticipacaoEncontroRequestDTO> participacoesEncontrosDTO, AcaoParticipacaoEncontro acaoParticipacaoEncontro) {
-        return participacoesEncontrosDTO != null ? participacoesEncontrosDTO.stream().filter(participacaoEncontroDTO -> participacaoEncontroDTO.getAcaoParticipacaoEncontroEnum().equals(acaoParticipacaoEncontro))
+        return participacoesEncontrosDTO != null ? participacoesEncontrosDTO.stream()
+                .filter(participacaoEncontroDTO -> Objects.nonNull(participacaoEncontroDTO.getAcaoParticipacaoEncontroEnum()) && participacaoEncontroDTO.getAcaoParticipacaoEncontroEnum().equals(acaoParticipacaoEncontro))
                 .map(participacaoEncontroMapper::toEntity)
                 .toList() : Collections.emptyList();
     }
