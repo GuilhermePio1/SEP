@@ -11,7 +11,7 @@ import com.paroquia_santo_afonso.sep.SEP.modules.equipe.model.Equipe;
 import java.util.Optional;
 
 @Repository
-public interface EquipeRepository extends FileRepository<Equipe, Long> {
+public interface EquipeRepository extends FileRepository<Equipe, Long>, EquipeCustomRepository {
     Optional<Equipe> findByEncontroAndNome(Encontro encontro, String nome);
     Page<Equipe> findAllProjectedBy(Pageable pageable);
 }

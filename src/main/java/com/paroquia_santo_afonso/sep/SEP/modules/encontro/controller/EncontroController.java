@@ -1,5 +1,7 @@
 package com.paroquia_santo_afonso.sep.SEP.modules.encontro.controller;
 
+import com.paroquia_santo_afonso.sep.SEP.common.base.dto.paginacao.FiltroPaginacaoDto;
+import com.paroquia_santo_afonso.sep.SEP.common.base.dto.paginacao.FiltroPaginacaoResponse;
 import com.paroquia_santo_afonso.sep.SEP.modules.encontro.dto.EncontroRequestDTO;
 import com.paroquia_santo_afonso.sep.SEP.modules.encontro.dto.EncontroResponseDTO;
 import com.paroquia_santo_afonso.sep.SEP.modules.encontro.projection.EncontroProjection;
@@ -22,6 +24,11 @@ public class EncontroController {
 	@ResponseStatus(HttpStatus.CREATED)
 	public EncontroResponseDTO criar(@RequestBody @Valid EncontroRequestDTO dto) {
 		return encontroService.criar(dto);
+	}
+
+	@PostMapping("listar-paginado")
+	public FiltroPaginacaoResponse<EncontroResponseDTO> listarPaginado(@RequestBody FiltroPaginacaoDto filtroPaginacao) {
+		return encontroService.buscarPaginado(filtroPaginacao);
 	}
 
 	@GetMapping

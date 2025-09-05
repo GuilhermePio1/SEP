@@ -6,9 +6,7 @@ import com.paroquia_santo_afonso.sep.SEP.modules.equipista.dto.ParticipacaoEncon
 import com.paroquia_santo_afonso.sep.SEP.modules.equipista.model.ParticipacaoEncontro;
 import org.springframework.stereotype.Component;
 
-import java.time.Year;
 import java.util.Objects;
-import java.util.Optional;
 
 @Component
 public class ParticipacaoEncontroMapper {
@@ -21,13 +19,15 @@ public class ParticipacaoEncontroMapper {
     }
 
     public ParticipacaoEncontroResponseDTO toResponseDTO(ParticipacaoEncontro entity) {
+        Equipe equipe = entity.getEquipe();
+
         return ParticipacaoEncontroResponseDTO.builder()
                 .id(entity.getId())
-                .nomeEncontro(Objects.nonNull(entity.getEquipe()) ? entity.getEquipe().getEncontro().getNome() : null)
-                .idEquipe(Objects.nonNull(entity.getEquipe()) ? entity.getEquipe().getId() : null)
-                .nomeEquipe(Objects.nonNull(entity.getEquipe()) ? entity.getEquipe().getNome() : null)
-                .ano(Optional.ofNullable(entity.getAno()).map(Year::getValue).orElse(null))
-                .tipoParticipacao(Objects.nonNull(entity.getEquipe()) ? entity.getTipoParticipacao().getTitle() : null)
+                .nomeEncontro(Objects.nonNull(equipe) && Objects.nonNull(equipe.getEncontro()) ? equipe.getEncontro().getNome() : null)
+                .idEquipe(Objects.nonNull(equipe) ? equipe.getId() : null)
+                .nomeEquipe(Objects.nonNull(equipe) ? equipe.getNome() : null)
+                .ano(Objects.nonNull(entity.getAno()) ? entity.getAno().getValue() : null)
+                .tipoParticipacao(Objects.nonNull(entity.getTipoParticipacao()) ? entity.getTipoParticipacao().name() : null)
                 .build();
     }
 

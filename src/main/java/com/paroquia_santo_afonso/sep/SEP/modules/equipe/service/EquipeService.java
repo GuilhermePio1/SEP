@@ -1,5 +1,7 @@
 package com.paroquia_santo_afonso.sep.SEP.modules.equipe.service;
 
+import com.paroquia_santo_afonso.sep.SEP.common.base.dto.paginacao.FiltroPaginacaoDto;
+import com.paroquia_santo_afonso.sep.SEP.common.base.dto.paginacao.FiltroPaginacaoResponse;
 import com.paroquia_santo_afonso.sep.SEP.common.base.service.impl.FileServiceImpl;
 import com.paroquia_santo_afonso.sep.SEP.common.exception.EquipeNotFoundException;
 import com.paroquia_santo_afonso.sep.SEP.common.exception.EquipeUsadaException;
@@ -27,6 +29,10 @@ public class EquipeService extends FileServiceImpl<Equipe, EquipeMapper, EquipeR
 	@Override
 	protected ResourceNotFoundException createNotFoundException(Long id) {
 		return new EquipeNotFoundException(id);
+	}
+
+	public FiltroPaginacaoResponse<EquipeResponseDTO> buscarPaginado(FiltroPaginacaoDto filtroPaginacaoResponse) {
+		return this.repository.buscarPaginado(filtroPaginacaoResponse);
 	}
 
 	@Transactional(readOnly = true)

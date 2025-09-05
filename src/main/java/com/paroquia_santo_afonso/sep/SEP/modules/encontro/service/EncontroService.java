@@ -1,5 +1,7 @@
 package com.paroquia_santo_afonso.sep.SEP.modules.encontro.service;
 
+import com.paroquia_santo_afonso.sep.SEP.common.base.dto.paginacao.FiltroPaginacaoDto;
+import com.paroquia_santo_afonso.sep.SEP.common.base.dto.paginacao.FiltroPaginacaoResponse;
 import com.paroquia_santo_afonso.sep.SEP.common.exception.EncontroNotFoundException;
 import com.paroquia_santo_afonso.sep.SEP.common.exception.EncontroUsadoException;
 import com.paroquia_santo_afonso.sep.SEP.common.exception.ResourceNotFoundException;
@@ -29,6 +31,10 @@ public class EncontroService {
 		Encontro encontro = encontroMapper.toEntity(dto);
 		Encontro salvo = encontroRepository.save(encontro);
 		return encontroMapper.toResponseDTO(salvo);
+	}
+
+	public FiltroPaginacaoResponse<EncontroResponseDTO> buscarPaginado(FiltroPaginacaoDto filtroPaginacaoResponse) {
+		return this.encontroRepository.buscarPaginado(filtroPaginacaoResponse);
 	}
 
 	@Transactional(readOnly = true)

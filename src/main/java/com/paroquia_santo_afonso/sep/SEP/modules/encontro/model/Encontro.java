@@ -3,10 +3,21 @@ package com.paroquia_santo_afonso.sep.SEP.modules.encontro.model;
 import java.util.List;
 
 import com.paroquia_santo_afonso.sep.SEP.modules.equipe.model.Equipe;
+import com.paroquia_santo_afonso.sep.SEP.modules.encontro.dto.EncontroResponseDTO;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
+@SqlResultSetMapping(
+        name = "EncontroResponseDTOMapping",
+        classes = @ConstructorResult(
+                targetClass = EncontroResponseDTO.class,
+                columns = {
+                        @ColumnResult(name = "id"),
+                        @ColumnResult(name = "nome"),
+                }
+        )
+)
 @Entity
 @Table(name = "encontros")
 @Data

@@ -13,5 +13,15 @@ public class EquipeResponseDTO extends FileBaseDTO {
 	private Long id;
 	private String nome;
 	private EncontroDTO encontro;
+
+	/**
+	 * Construtor para o SQLResultSetMapping "EquipeResponseDTOMapping"
+	 * @param id identificador da equipe
+	 * @param nome nome da equipe
+	 */
+	public EquipeResponseDTO(Long id, String nome) {
+		this.id = id;
+		this.nome = nome;
+	}
 }
 

@@ -1,6 +1,8 @@
 package com.paroquia_santo_afonso.sep.SEP.modules.equipe.controller;
 
 import com.paroquia_santo_afonso.sep.SEP.common.base.dto.FileDownloadDTO;
+import com.paroquia_santo_afonso.sep.SEP.common.base.dto.paginacao.FiltroPaginacaoDto;
+import com.paroquia_santo_afonso.sep.SEP.common.base.dto.paginacao.FiltroPaginacaoResponse;
 import com.paroquia_santo_afonso.sep.SEP.common.utils.ControllerUtils;
 import com.paroquia_santo_afonso.sep.SEP.modules.equipe.dto.EquipeResponseDTO;
 import com.paroquia_santo_afonso.sep.SEP.modules.equipe.dto.EquipeRequestDTO;
@@ -28,6 +30,11 @@ public class EquipeController {
 	@ResponseStatus(HttpStatus.CREATED)
 	public EquipeResponseDTO criar(@Valid EquipeRequestDTO dto, @RequestParam(required = false, name = "arquivo") MultipartFile arquivo) {
 		return equipeService.saveEntityWithFile(dto, arquivo);
+	}
+
+	@PostMapping("listar-paginado")
+	public FiltroPaginacaoResponse<EquipeResponseDTO> listarPaginado(@RequestBody FiltroPaginacaoDto filtroPaginacao) {
+		return equipeService.buscarPaginado(filtroPaginacao);
 	}
 
 	@GetMapping

@@ -1,12 +1,13 @@
 package com.paroquia_santo_afonso.sep.SEP.modules.equipista.controller;
 
 import com.paroquia_santo_afonso.sep.SEP.common.base.dto.FileDownloadDTO;
+import com.paroquia_santo_afonso.sep.SEP.common.base.dto.paginacao.FiltroPaginacaoDto;
+import com.paroquia_santo_afonso.sep.SEP.common.base.dto.paginacao.FiltroPaginacaoResponse;
 import com.paroquia_santo_afonso.sep.SEP.common.utils.ControllerUtils;
 import com.paroquia_santo_afonso.sep.SEP.modules.equipista.dto.EquipistaRequestDTO;
 import com.paroquia_santo_afonso.sep.SEP.modules.equipista.dto.EquipistaResponseDTO;
 import com.paroquia_santo_afonso.sep.SEP.modules.equipista.projection.EquipistaProjection;
 import com.paroquia_santo_afonso.sep.SEP.modules.equipista.service.EquipistaService;
-import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -19,9 +20,12 @@ import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/equipista")
-@RequiredArgsConstructor
 public class EquipistaController {
     private final EquipistaService equipistaService;
+
+    public EquipistaController(EquipistaService equipistaService) {
+        this.equipistaService = equipistaService;
+    }
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
@@ -29,9 +33,14 @@ public class EquipistaController {
         return equipistaService.save(equipistaRequestDTO, arquivo);
     }
 
+    @PostMapping("listar-paginado")
+    public FiltroPaginacaoResponse<EquipistaResponseDTO> listarPaginado(@RequestBody FiltroPaginacaoDto filtroPaginacao) {
+        return equipistaService.buscarPaginado(filtroPaginacao);
+    }
+
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public Page<EquipistaProjection> listarTodos(@PageableDefault()Pageable pageable) {
+    public Page<EquipistaProjection> listarTodos(@PageableDefault() Pageable pageable) {
         return equipistaService.findAllProjectedBy(pageable);
     }
 
@@ -50,7 +59,7 @@ public class EquipistaController {
 
     @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @ResponseStatus(HttpStatus.OK)
-    public EquipistaResponseDTO atualizar(@PathVariable Long id,EquipistaRequestDTO equipistaRequestDTO, @RequestParam("arquivo") MultipartFile arquivo) {
+    public EquipistaResponseDTO atualizar(@PathVariable Long id, EquipistaRequestDTO equipistaRequestDTO, @RequestParam("arquivo") MultipartFile arquivo) {
         return equipistaService.update(equipistaRequestDTO, id, arquivo);
     }
 

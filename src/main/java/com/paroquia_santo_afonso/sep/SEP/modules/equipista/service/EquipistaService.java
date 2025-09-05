@@ -1,5 +1,7 @@
 package com.paroquia_santo_afonso.sep.SEP.modules.equipista.service;
 
+import com.paroquia_santo_afonso.sep.SEP.common.base.dto.paginacao.FiltroPaginacaoDto;
+import com.paroquia_santo_afonso.sep.SEP.common.base.dto.paginacao.FiltroPaginacaoResponse;
 import com.paroquia_santo_afonso.sep.SEP.common.base.service.impl.FileServiceImpl;
 import com.paroquia_santo_afonso.sep.SEP.common.exception.EquipistaNotFoundException;
 import com.paroquia_santo_afonso.sep.SEP.common.exception.ResourceNotFoundException;
@@ -32,6 +34,10 @@ public class EquipistaService extends FileServiceImpl<Equipista, EquipistaMapper
         this.participacaoEncontroMapper = participacaoEncontroMapper;
     }
 
+    public FiltroPaginacaoResponse<EquipistaResponseDTO> buscarPaginado(FiltroPaginacaoDto filtroPaginacaoResponse) {
+        return this.repository.buscarPaginado(filtroPaginacaoResponse);
+    }
+
     @Override
     protected ResourceNotFoundException createNotFoundException(Long id) {
         return new EquipistaNotFoundException(id);
@@ -49,7 +55,7 @@ public class EquipistaService extends FileServiceImpl<Equipista, EquipistaMapper
         if (participacoesEncontrosDTO != null && !participacoesEncontrosDTO.isEmpty()) {
             List<ParticipacaoEncontro> participacaoEncontros = participacoesEncontrosDTO.stream()
                     .map(participacaoEncontroMapper::toEntity)
-                    .peek(participacaoEncontro -> participacaoEncontro.setId(idEquipista))
+                    .peek(participacaoEncontro -> participacaoEncontro.setEquipista(new Equipista(idEquipista)))
                     .toList();
 
             return participacaoEncontroRepository.saveAll(participacaoEncontros).stream()
@@ -80,7 +86,7 @@ public class EquipistaService extends FileServiceImpl<Equipista, EquipistaMapper
         List<ParticipacaoEncontro> deletarParticipacoes = getParticipacoesEncontrosByAcao(participacoesEncontrosDTO, AcaoParticipacaoEncontro.DELETAR);
         List<ParticipacaoEncontroRequestDTO> atualizarParticipacoes = participacoesEncontrosDTO != null
                 ? participacoesEncontrosDTO.stream()
-                    .filter(participacaoEncontroRequestDTO -> Objects.nonNull(participacaoEncontroRequestDTO.getAcaoParticipacaoEncontroEnum()) && participacaoEncontroRequestDTO.getAcaoParticipacaoEncontroEnum().equals(AcaoParticipacaoEncontro.ATUALIZAR)).toList()
+                .filter(participacaoEncontroRequestDTO -> Objects.nonNull(participacaoEncontroRequestDTO.getAcaoParticipacaoEncontroEnum()) && participacaoEncontroRequestDTO.getAcaoParticipacaoEncontroEnum().equals(AcaoParticipacaoEncontro.ATUALIZAR)).toList()
                 : Collections.emptyList();
 
         participacaoEncontroResponseDTOS = participacaoEncontroRepository.saveAll(cadastrarParticipacoes)

@@ -27,5 +27,14 @@ public class EquipistaResponseDTO extends FileBaseDTO {
     private List<PastoralDTO> pastorais;
     private String sacramento;
     private List<ParticipacaoEncontroResponseDTO> participacoesEncontro;
-    
+
+    /**
+     * Construtor para o SQLResultSetMapping "EquipistaResponseDTOMapping"
+     * @param id identificador do equipista
+     * @param nome nome do equipista
+     */
+    public EquipistaResponseDTO(Long id, String nome) {
+        this.id = id;
+        this.nome = nome;
+    }
 }
